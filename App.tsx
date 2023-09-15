@@ -1,5 +1,7 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Text, Image, StyleSheet, View} from 'react-native';
+import BottomMenu from './components/BottomMenu';
+import {getWeather} from './fetch/getWeather';
 
 function App(): JSX.Element {
   const date = new Date();
@@ -10,6 +12,16 @@ function App(): JSX.Element {
       day: '2-digit',
     })
     .split(/\s/);
+
+  const [temperature, setTemperature] = useState(0);
+  const [windSpeed, setWindSpeed] = useState(0);
+
+  getWeather().then(res => {
+    res.json().then(data => {
+      setTemperature(data.current_weather.temperature);
+      setWindSpeed(data.current_weather.windspeed);
+    });
+  });
 
   return (
     <>
@@ -25,6 +37,7 @@ function App(): JSX.Element {
                 flexDirection: 'row',
                 justifyContent: 'flex-end',
                 alignItems: 'flex-end',
+                alignSelf: 'center',
               }}>
               <Text style={styles.location}>Almaty, Kazakhstan</Text>
 
@@ -38,7 +51,7 @@ function App(): JSX.Element {
             </Text>
           </View>
           <View>
-            <Text style={styles.temperature}>31°C</Text>
+            <Text style={styles.temperature}>{temperature}°C</Text>
             <View style={{...styles.flex, gap: 20, alignSelf: 'center'}}>
               <View style={{...styles.flex, gap: 8}}>
                 <Image
@@ -52,7 +65,9 @@ function App(): JSX.Element {
                   style={{width: 36, height: 36}}
                   source={require('./assets/weather-windy.png')}
                 />
-                <Text style={{color: '#fafafa', fontSize: 24}}>4.3 km/h</Text>
+                <Text style={{color: '#fafafa', fontSize: 24}}>
+                  {windSpeed} km/h
+                </Text>
               </View>
             </View>
             <Text
@@ -62,8 +77,9 @@ function App(): JSX.Element {
                 fontSize: 32,
                 textAlign: 'center',
               }}>
-              Cloudy
+              Rainy
             </Text>
+            <BottomMenu />
           </View>
         </View>
       </View>
@@ -85,7 +101,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     height: '100%',
-    padding: 30,
+    paddingTop: 30,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
